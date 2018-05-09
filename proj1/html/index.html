@@ -1,0 +1,199 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1><span style="color: #DE3737">Jesse Chen</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>Project 1: Image Filtering and Hybrid Images</h2>
+
+<p>In order to generate the filtered images, my algorithm first pads the input image with reflected image content along the edges. I chose reflection over zero-padding simply because reflection results in less distortion from the original image when filtering. My algorithm accomplishes this simply by using MATLAB's <code>padarray()</code> function.</p>
+
+<p>Next, my algorithm applies the input filter to the padded image. It loops through the padded image and each of its color channels, but it only considers the pixels containing the original image. At each pixel, a matrix of the same size as the filter is centered on the current pixel, indicating the current region of interest for the filter. Element-wise multiplication is then performed between this matrix and the filter itself. The resulting matrix from this multiplication has its elements summed together to give the filtered value of the pixel on which the filter is currently centered. Finally, this filtered value is copied into the corresponding pixel of the output image that has the same size as the original image.</p>
+
+<h3>Results</h3>
+
+<table border=1>
+	<tr>
+		<th/>
+		<th>Hybrid Image</th>
+		<th>High Frequencies</th>
+		<th>Low Frequencies</th>
+		<th>Original Images</th>
+	</tr>
+	<tr>
+		<td>Dog-Cat</td>
+		<td><img src="Dog-Cat.jpg" width="100%"/></td>
+		<td><img src="Dog-Cat_high.jpg" width="100%"/></td>
+		<td><img src="Dog-Cat_low.jpg" width="100%"/></td>
+		<td><img src="Cat.bmp" width="50%"/><img src="Dog.bmp" width="50%"/></td>
+	</tr>
+	<tr>
+		<td>Motorcycle-Bicycle</td>
+		<td><img src="Motorcycle-Bicycle.jpg" width="100%"/></td>
+		<td><img src="Motorcycle-Bicycle_high.jpg" width="100%"/></td>
+		<td><img src="Motorcycle-Bicycle_low.jpg" width="100%"/></td>
+		<td><img src="Bicycle.bmp" width="50%"/><img src="Motorcycle.bmp" width="50%"/></td>
+	</tr>
+	<tr>
+		<td>Plane-Bird</td>
+		<td><img src="Plane-Bird.jpg" width="100%"/></td>
+		<td><img src="Plane-Bird_high.jpg" width="100%"/></td>
+		<td><img src="Plane-Bird_low.jpg" width="100%"/></td>
+		<td><img src="Bird.bmp" width="50%"/><img src="Plane.bmp" width="50%"/></td>
+	</tr>
+	<tr>
+		<td>Einstein-Marilyn</td>
+		<td><img src="Einstein-Marilyn.jpg" width="100%"/></td>
+		<td><img src="Einstein-Marilyn_high.jpg" width="100%"/></td>
+		<td><img src="Einstein-Marilyn_low.jpg" width="100%"/></td>
+		<td><img src="Marilyn.bmp" width="50%"/><img src="Einstein.bmp" width="50%"/></td>
+	</tr>
+	<tr>
+		<td>Submarine-Fish</td>
+		<td><img src="Submarine-Fish.jpg" width="100%"/></td>
+		<td><img src="Submarine-Fish_high.jpg" width="100%"/></td>
+		<td><img src="Submarine-Fish_low.jpg" width="100%"/></td>
+		<td><img src="Fish.bmp" width="50%"/><img src="Submarine.bmp" width="50%"/></td>
+	</tr>
+	<tr>
+		<td>Panda-Wolf</td>
+		<td><img src="Panda-Wolf.jpg" width="100%"/></td>
+		<td><img src="Panda-Wolf_high.jpg" width="100%"/></td>
+		<td><img src="Panda-Wolf_low.jpg" width="100%"/></td>
+		<td><img src="Wolf.jpg" width="50%"/><img src="Panda.jpg" width="50%"/></td>
+	</tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,214 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1><span style="color: #DE3737">Jesse Chen</span></h1>
+</div>
+</div>
+<div class="container">
+
+
+<h2>Project 2: Local Feature Matching</h2>
+
+<p>The goal of this project was to implement a local feature matching algorithm in three major steps:</p>
+
+<ol>
+<li>Interest point detection</li>
+<li>Local feature description</li>
+<li>Feature matching</li>
+</ol>
+
+
+<h3>Interest Point Detection</h3>
+
+<p>Interest points were found using a basic Harris corner detector. The X and Y image gradients were first computed with a square Gaussian filter of size <code>feature_width</code> = 16 and &sigma; = 1. The X and Y image derivatives were found by convolving their respective gradients with the input image. All three squares of image derivatives were then found with the X and Y derivatives.</p>
+<p>These squares of image derivatives were convolved with a different Gaussian filter of size = 15 and &sigma; = 1. I found that setting the size of this Gaussian slightly smaller than that of the first Gaussian (16) produced more total matches at about the same accuracy.</p>
+<p>Using these image derivatives, I calculated a cornerness score for each pixel using the cornerness function with &alpha; = 0.05. I found that increasing &alpha; rapidly generated fewer interest points. &alpha; values less than 0.05 generally did not seem to have much effect.</p>
+<p>Next, I performed a simple non-maxima suppression by suppressing pixels whose cornerness scores were less than 0.01% of the entire image's maximum cornerness score. Higher threshold values significantly reduced the number of interest points, while lower threshold value significantly increased the amount of noisy interest points.</p>
+<p>Finally, a sliding window technique was used to retain only the maximum value in each window.</p>
+
+
+<h3>Local Feature Description</h3>
+
+<p>Local features were described with a SIFT-like algorithm to describe interest points in 128 dimensions. Again, a Gaussian filter of size <code>feature_width</code> = 16 and &sigma; = 1 was used to find the X and Y image gradients for calculating the respective image derivative; larger &sigma; values resulted in a greater number of bad matches while retaining roughly the same number of good matches.</p>
+<p>The image derivatives were then used to find the orientation magnitude and angle at each pixel. The angles were binned into one of eight octants which correspond to the eight main compass directions to check for rotation invariance.</p>
+<p>Each interest point has a <code>feature_width</code> x <code>feature_width</code> window built around it, which is divided into a 4 x 4 grid of cells. The magnitudes and corresponding orientation octants in each cell are retrieved and used to attempt to describe all 128 dimensions of every interest point.</p>
+<p>Finally, all of the features are normalized and raised to the 0.5 power to help improve matching performance, as described in the file template. Powers greater than 0.5 were found to reduce accuracy with slightly fewer matches, but powers less than 0.5 were found to increase accuracy with very few matches at all.</p>
+
+
+<h3>Feature Matching</h3>
+
+<p>Feature matching was accomplished simply with the nearest neighbor distance ratio test. The Euclidian distance was first calculated between each corresponding feature from both images and sorted in ascending order. Then, for each feature in one image, the distances to its nearest two neighbors in the second image were divided by each other to produce a ratio between 0 and 1. Ratios below about 0.75 tend to correspond with most confident matches, as shown in <i>Lowe IJCV 2004</i>. Features below this threshold were considered a match and returned as the final result of local feature matching.</p>
+
+
+<h3>Results</h3>
+
+<p><b>Notre Dame</b> - 122 total good matches, 11 total bad matches. 92% accuracy</p>
+<img src="Notre Dame_eval.jpg" width="100%"/>
+<img src="Notre Dame_arrows.jpg" width="100%"/>
+
+<p><b>Mount Rushmore</b> - 205 total good matches, 7 total bad matches. 97% accuracy</p>
+<img src="Mount Rushmore_eval.jpg" width="100%"/>
+<img src="Mount Rushmore_arrows.jpg" width="100%"/>
+
+<p><b>Episcopal Gaudi</b> - 0 total good matches, 1 total bad matches. 0% accuracy</p>
+<img src="Episcopal Gaudi_eval.jpg" width="100%"/>
+<img src="Episcopal Gaudi_arrows.jpg" width="100%"/>
+
+
+<h3>Extra Image Pairs</h3>
+
+<p><b>Capricho Gaudi</b></p>
+<img src="Capricho Gaudi_dots.jpg" width="100%"/>
+<img src="Capricho Gaudi_arrows.jpg" width="100%"/>
+
+<p><b>House</b></p>
+<img src="House_dots.jpg" width="100%"/>
+<img src="House_arrows.jpg" width="100%"/>
+
+<p><b>Pantheon Paris</b></p>
+<img src="Pantheon Paris_dots.jpg" width="100%"/>
+<img src="Pantheon Paris_arrows.jpg" width="100%"/>
+
+<p><b>Sacre Coeur</b></p>
+<img src="Sacre Coeur_dots.jpg" width="100%"/>
+<img src="Sacre Coeur_arrows.jpg" width="100%"/>
+
+<p><b>Sleeping Beauty Castle Paris</b></p>
+<img src="Sleeping Beauty Castle Paris_dots.jpg" width="100%"/>
+<img src="Sleeping Beauty Castle Paris_arrows.jpg" width="100%"/>
+
+<p><b>Statue of Liberty</b></p>
+<img src="Statue of Liberty_dots.jpg" width="100%"/>
+<img src="Statue of Liberty_arrows.jpg" width="100%"/>
+
+</body>
+</html>

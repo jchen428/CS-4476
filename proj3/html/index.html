@@ -1,0 +1,525 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+table td img {
+  text-align: center;
+  vertical-align: middle;
+}
+
+#contents a {
+}
+
+.matrix {
+    position: relative;
+}
+.matrix:before, .matrix:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    border: 1px solid #000;
+    width: 6px;
+    height: 100%;
+}
+.matrix:before {
+    left: -6px;
+    border-right: 0px;
+}
+.matrix:after {
+    right: -6px;
+    border-left: 0px;
+}
+.matrix td {
+    padding: 5px;    
+    text-align: center;
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1><span style="color: #DE3737">Jesse Chen</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2> Project 3: Camera Calibration and Fundamental Matrix Estimation with RANSAC</h2>
+
+<p>The goal of this project was to estimate the camera projection matrix and fundamental matrix between a pair of images.</p>
+
+
+<h3>Part I: Camera Projection Matrix</h3>
+
+<p>The projection matrix M transforms 3D world coordinates to 2D image coordinates. This was done by constructing a system of homogeneous linear equations from each pair of corresponding 2D &#60;u<sub>i</sub>, v<sub>i</sub>> and 3D &#60;X<sub>i</sub>, Y<sub>i</sub>, Z<sub>i</sub>> coordinates:</p>
+<div align=center>
+    <table class="matrix">
+        <tr>
+            <td>X<sub>1</sub></td>
+            <td>Y<sub>1</sub></td>
+            <td>Z<sub>1</sub></td>
+			<td>1</td>
+			<td>0</td>
+            <td>0</td>
+            <td>0</td>
+			<td>0</td>
+			<td>-u<sub>1</sub>X<sub>1</sub></td>
+            <td>-u<sub>1</sub>Y<sub>1</sub></td>
+            <td>-u<sub>1</sub>Z<sub>1</sub></td>
+			<td>-u<sub>1</sub></td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+			<td>0</td>
+			<td>X<sub>1</sub></td>
+            <td>Y<sub>1</sub></td>
+            <td>Z<sub>1</sub></td>
+			<td>1</td>
+			<td>-v<sub>1</sub>X<sub>1</sub></td>
+            <td>-v<sub>1</sub>Y<sub>1</sub></td>
+            <td>-v<sub>1</sub>Z<sub>1</sub></td>
+			<td>-v<sub>1</sub></td>
+        </tr>
+		<tr>
+			<td colspan=12>...</td>
+		</tr>
+		<tr>
+            <td>X<sub>n</sub></td>
+            <td>Y<sub>n</sub></td>
+            <td>Z<sub>n</sub></td>
+			<td>1</td>
+			<td>0</td>
+            <td>0</td>
+            <td>0</td>
+			<td>0</td>
+			<td>-u<sub>n</sub>X<sub>n</sub></td>
+            <td>-u<sub>n</sub>Y<sub>n</sub></td>
+            <td>-u<sub>n</sub>Z<sub>n</sub></td>
+			<td>-u<sub>n</sub></td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+			<td>0</td>
+			<td>X<sub>n</sub></td>
+            <td>Y<sub>n</sub></td>
+            <td>Z<sub>n</sub></td>
+			<td>1</td>
+			<td>-v<sub>n</sub>X<sub>n</sub></td>
+            <td>-v<sub>n</sub>Y<sub>n</sub></td>
+            <td>-v<sub>n</sub>Z<sub>n</sub></td>
+			<td>-v<sub>n</sub></td>
+        </tr>
+    </table>
+</div>
+
+<div style="float: right">
+	<img src="Residuals_Easy.png" width="80%"/>
+	<p style="font-size: 14px">Total residual of the estimated projection matrix = 0.0445</p>
+</div>
+
+<p>This system of homogeneous linear equations was then solved using linear least squares. In MATLAB, the singular value decomposition was performed on the constructed matrix. The final estimated projection matrix M is the last column in the resulting V matrix, reshaped into a 3x4 matrix. From the given normalized point data, this computes to:</p>
+<div align=center>
+    <table class="matrix">
+        <tr>
+            <td>0.4583</td>
+            <td>-0.2947</td>
+            <td>-0.0140</td>
+			<td>0.0040</td>
+        </tr>
+        <tr>
+            <td>-0.0509</td>
+            <td>-0.0546</td>
+            <td>-0.5411</td>
+			<td>-0.0524</td>
+        </tr>
+		<tr>
+            <td>0.1090</td>
+            <td>0.1783</td>
+            <td>-0.0443</td>
+			<td>0.5968</td>
+        </tr>
+    </table>
+</div>
+
+<div style="float: right">
+	<img src="CameraCenter_Easy.png" width="80%"/>
+	<p style="font-size: 14px">The red cross represents the camera center. The blue circles represent the given interest points.</p>
+</div>
+
+<p>Next, the camera center was computed from the estimated projection matrix. This is done with a few simple matrix operations:</p>
+<p align=center>C = -Q<sup>-1</sup>m<sub>4</sub></p>
+<p>where Q is the 3x3 submatrix M<sub>1-3,1-3</sub>, and m<sub>4</sub> is the column vector M<sub>1-3,4</sub>. From the given normalized point data, the camera center C is estimated to be at <-1.5127, -2.3517, 0.2826>.</p>
+
+<br />
+<p>With the more difficult, non-normalized point data, the estimated projection matrix was:</p>
+<div align=center>
+    <table class="matrix">
+        <tr>
+            <td>0.0069</td>
+            <td>-0.0040</td>
+            <td>-0.0013</td>
+			<td>-0.8267</td>
+        </tr>
+        <tr>
+            <td>0.0015</td>
+            <td>0.0010</td>
+            <td>-0.0073</td>
+			<td>-0.5625</td>
+        </tr>
+		<tr>
+            <td>0.0000</td>
+            <td>0.0000</td>
+            <td>-0.0000</td>
+			<td>-0.0034</td>
+        </tr>
+    </table>
+</div>
+
+<br />
+<img src="Residuals_Hard.png" width="49%"/>
+<img src="CameraCenter_Hard.png" width="49%"/>
+<p style="font-size: 14px">Total residual = 15.5450. Camera center = <303.1000, 307.1843, 30.4217>.</p>
+
+
+<br />
+<br />
+<h3>Part II: Fundamental Matrix Estimation</h3>
+
+<p>The fundamental matrix F is used to estimate the mapping of points in one image to lines in another image. This was accomplished with the eight-point algorithm in a very similar manner as explained in Part I, where a system of homogeneous linear equations was constructed from corresponding 2D coordinates in each image &#60;u<sub>i</sub>, v<sub>i</sub>> and &#60;u<sub>i</sub>', v<sub>i</sub>'>:</p>
+<div align=center>
+    <table class="matrix">
+        <tr>
+            <td>u<sub>1</sub>u<sub>1</sub>'</td>
+            <td>u<sub>1</sub>v<sub>1</sub>'</td>
+            <td>u<sub>1</sub></td>
+			<td>v<sub>1</sub>u<sub>1</sub>'</td>
+			<td>v<sub>1</sub>v<sub>1</sub>'</td>
+            <td>v<sub>1</sub></td>
+            <td>u<sub>1</sub>'</td>
+			<td>v<sub>1</sub>'</td>
+			<td>1</td>
+        </tr>
+		<tr>
+			<td colspan=9>...</td>
+		</tr>
+		<tr>
+            <td>u<sub>n</sub>u<sub>n</sub>'</td>
+            <td>u<sub>n</sub>v<sub>n</sub>'</td>
+            <td>u<sub>n</sub></td>
+			<td>v<sub>n</sub>u<sub>n</sub>'</td>
+			<td>v<sub>n</sub>v<sub>n</sub>'</td>
+            <td>v<sub>n</sub></td>
+            <td>u<sub>n</sub>'</td>
+			<td>v<sub>n</sub>'</td>
+			<td>1</td>
+        </tr>
+    </table>
+</div>
+
+<p>Again, this was solved by performing the singular value decomposition on the constructed matrix. The last column of the resulting V matrix was then reshaped into a 3x3 matrix and transposed to form the fundamental matrix F. Finally, the rank 2 constraint was enforced to make the epipolar lines coincident. Another singular value decomposition was performed on F, and S<sub>3,3</sub> was set to 0 before finalizing F:</p>
+<p align=center>F = U * S * V<sup>T</sup></p>
+<p>As a result, the fundamental matrix for the sample image pair was estimated to be:</p>
+<div align=center>
+    <table class="matrix">
+        <tr>
+            <td>-0.0000</td>
+            <td>0.0000</td>
+            <td>-0.0019</td>
+        </tr>
+        <tr>
+            <td>0.0000</td>
+            <td>0.0000</td>
+            <td>0.0172</td>
+        </tr>
+		<tr>
+            <td>-0.0009</td>
+            <td>-0.0264</td>
+            <td>0.9995</td>
+        </tr>
+    </table>
+</div>
+<br />
+<img src="Lines1_Easy.png"/>
+<img src="Lines2_Easy.png"/>
+
+<p>Fundamental matrix with added noise:</p>
+<div align=center>
+    <table class="matrix">
+        <tr>
+            <td>-0.0000</td>
+            <td>0.0000</td>
+            <td>-0.0005</td>
+        </tr>
+        <tr>
+            <td>0.0000</td>
+            <td>0.0000</td>
+            <td>0.0060</td>
+        </tr>
+		<tr>
+            <td>-0.0013</td>
+            <td>-0.0133</td>
+            <td>0.9999</td>
+        </tr>
+    </table>
+</div>
+<br />
+<img src="Lines1_Hard.png"/>
+<img src="Lines2_Hard.png"/>
+
+<p>These results were improved, however, by centering and normalizing the point data before using the eight-point algorithm to compute the fundamental matrix F. For each image, transformation matrices T<sub>a</sub> and T<sub>b</sub> were constructed to scale the point data by s such that the mean distance from each point to the origin is &radic;<span style="text-decoration: overline">2</span> and center the point data on its centroid c<sub>u,v</sub>:</p>
+<div align=center>
+    <table class="matrix">
+        <tr>
+            <td>s</td>
+            <td>0</td>
+            <td>-sc<sub>u</sub></td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>s</td>
+            <td>-sc<sub>v</sub></td>
+        </tr>
+		<tr>
+            <td>0</td>
+            <td>0</td>
+            <td>1</td>
+        </tr>
+    </table>
+</div>
+
+<p>Finally, the fundamental matrix was transformed back to its original units:</p>
+<p align=center>F<sub>orig</sub> = T<sub>b</sub><sup>T</sup> * F<sub>norm</sub> * T<sub>a</sub></p>
+
+<p>Normalized fundamental matrix:</p>
+<div align=center>
+    <table class="matrix">
+        <tr>
+            <td>-0.0000</td>
+            <td>0.0000</td>
+            <td>-0.0002</td>
+        </tr>
+        <tr>
+            <td>0.0000</td>
+            <td>-0.0000</td>
+            <td>0.0013</td>
+        </tr>
+		<tr>
+            <td>-0.0000</td>
+            <td>-0.0018</td>
+            <td>0.0411</td>
+        </tr>
+    </table>
+</div>
+<br />
+<img src="Lines1_Easy+EC.png"/>
+<img src="Lines2_Easy+EC.png"/>
+
+<p>Normalized fundamental matrix with added noise:</p>
+<div align=center>
+    <table class="matrix">
+        <tr>
+            <td>-0.0000</td>
+            <td>0.0000</td>
+            <td>-0.0001</td>
+        </tr>
+        <tr>
+            <td>0.0000</td>
+            <td>0.0000</td>
+            <td>0.0012</td>
+        </tr>
+		<tr>
+            <td>-0.0000</td>
+            <td>-0.0018</td>
+            <td>0.0676</td>
+        </tr>
+    </table>
+</div>
+<br />
+<img src="Lines1_Hard+EC.png"/>
+<img src="Lines2_Hard+EC.png"/>
+
+
+<br />
+<br />
+<h3>Part III: Fundamental Matrix with RANSAC</h3>
+
+<p>In Part II, perfect point correspondences were already given to estimate the fundamental matrix. The goal for this part is to estimate the fundamental matrix F on any pair of images with RANSAC, where we do not already have perfect point correspondences. We begin with a list of potentially spurious point correspondences from VLFeat's SIFT feature detector. For an arbitrary number of loops (3000 in this case, but more is generally better at the cost of compute time), a random sample of 8 point correspondences are taken and used to estimate the fundamental matrix using the method described in Part II. In each iteration, inliers were determined based on a distance metric:</p>
+<p align=center>distance = &#60;u<sub>i</sub>', v<sub>i</sub>', 1> * F * &#60;u<sub>i</sub>, v<sub>i</sub>, 1><sup>T</sup></p>
+<p>A distance threshold &epsilon; = 0.0001 was then tested against the rest of the potential point correspondences and used to include only inliers with distance less than &epsilon;. A range of values were tested for &epsilon;. However, it was found that higher values led to significantly more inliers, but many of those inliers were incorrect. On the other hand, lower values led to fewer inliers, but they seemed to be more correct. &epsilon; = 0.0001 was chosen because it consistently gave a reasonable number (a few dozen) of inliers across most test cases. Finally, the confidence for each iteration of RANSAC was rated by the percentage of inliers found in the point correspondences. After 3000 iterations, the iteration with the most confident results were returned, and the best fundamental matrix was recalculated based only on the most confident inliers.</p>
+
+<h4>Results without Normalization</h4>
+
+<p>Mount Rushmore</p>
+<img src="MountRushmore_Lines1.png"/>
+<img src="MountRushmore_Lines2.png"/>
+<img src="MountRushmore_Arrows.png" width="100%"/>
+
+<p>Notre Dame</p>
+<img src="NotreDame_Lines1.png"/>
+<img src="NotreDame_Lines2.png"/>
+<img src="NotreDame_Arrows.png" width="100%"/>
+
+<p>Episcopal Gaudi</p>
+<img src="EpiscopalGaudi_Lines1.png"/>
+<img src="EpiscopalGaudi_Lines2.png"/>
+<img src="EpiscopalGaudi_Arrows.png" width="100%"/>
+
+<p>Woodruff</p>
+<img src="Woodruff_Lines1.png"/>
+<img src="Woodruff_Lines2.png"/>
+<img src="Woodruff_Arrows.png" width="100%"/>
+
+<br />
+<br />
+<h4>Results with Normalization</h4>
+<p style="font-size: 14px">(Note: For clarity, only 30 randomly selected point correspondences are displayed in the results below.)</p>
+
+<p>Mount Rushmore</p>
+<img src="MountRushmore_Lines1+EC.png"/>
+<img src="MountRushmore_Lines2+EC.png"/>
+<img src="MountRushmore_Arrows+EC.png" width="100%"/>
+
+<p>Notre Dame</p>
+<img src="NotreDame_Lines1+EC.png"/>
+<img src="NotreDame_Lines2+EC.png"/>
+<img src="NotreDame_Arrows+EC.png" width="100%"/>
+
+<p>Episcopal Gaudi</p>
+<img src="EpiscopalGaudi_Lines1+EC.png"/>
+<img src="EpiscopalGaudi_Lines2+EC.png"/>
+<img src="EpiscopalGaudi_Arrows+EC.png" width="100%"/>
+
+<p>Woodruff</p>
+<img src="Woodruff_Lines1+EC.png"/>
+<img src="Woodruff_Lines2+EC.png"/>
+<img src="Woodruff_Arrows+EC.png" width="100%"/>
+
+<br />
+<br />
+</body>
+</html>

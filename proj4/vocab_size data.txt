@@ -1,0 +1,8 @@
+vocab_size = 10    -> 0.450, 192s; 0.457, 220s
+vocab_size = 20    -> 0.524, 212s; 0.524, 240s
+vocab_size = 50    -> 0.634, 248s; 0.613, 287s
+vocab_size = 100   -> 0.650, 337s; 0.640, 323s
+vocab_size = 200   -> 0.654, 584s
+vocab_size = 400   -> 0.667, 956s
+vocab_size = 1000  -> 0.681, 1901s
+vocab_size = 10000 -> 0.697, 15846s

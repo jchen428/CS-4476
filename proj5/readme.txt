@@ -1,0 +1,1 @@
+If VLFeat has not been initialized yet, uncomment line 42 in proj5.m and replace the path to your VLFeat directory.

@@ -1,0 +1,219 @@
+<html>
+<head>
+<title>Face Detection Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 1160px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+table td img {
+  text-align: center;
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Jesse Chen</h1>
+</div>
+</div>
+<div class="container">
+
+
+<h2> Project 5 / Face Detection with a Sliding Window</h2>
+
+
+<p>The goal of this project was to implement a face detector using the sliding window detector of Dalal and Triggs. This was achieved in four main steps:</p>
+
+<ol>
+<li>Load cropped positive training examples</li>
+<li>Randomly sample negative examples</li>
+<li>Train a linear classifier from the positive and negative examples</li>
+<li>Run the classifier on the set of test images</li>
+</ol>
+
+
+<h3>Loading Positive Training Examples</h3>
+
+<p>This step was simply a matter of going through the CalTech face database and transforming each image into a histogram of oriented gradients (HOG). These HOG representations of positive training examples were used as positive features train the linear classifier.</p>
+
+
+<h3>Randomly Sampling Negative Examples</h3>
+
+<p>Getting negative training examples was also reasonably straightforward. Until an arbitrary number of negative examples was reached, an image was randomly selected from the set of non-face scenes, the image was then randomly scaled, and a window of the same size as the HOG template was randomly cropped from the image. Finally, these cropped windows were transformed into HOG representations, like the positive training examples, and used as negative features for the linear classifier.</p>
+
+
+<h3>Training the Linear Classifier</h3>
+
+<p>Using the collected positive and negative training examples, a support vector machine (SVM) was trained with VLFeat's <code>vl_svmtrain</code> function. The result is the learned face detector, visualized below.</p>
+<center><img src="HT_Lambda0.0001.png"/></center>
+<p>Furthermore, to ensure the positive and negative training examples are sufficiently different, their separation can also be visualized where the green line represents positive examples and the red line represents negative examples.</p>
+<center><img src="ES_Neg10000.png"/></center>
+
+
+<h3>Running the Classifier on Test Images</h3>
+
+<p>Finally, the learned face detector was run against images in the set of test images. For a range of scales in each image, the image was transformed into a HOG representation and divided into cells on which the sliding window would operate on. The HOG features would be extracted from the sliding window at each cell and used to compute a confidence score for each cell. All cells whose confidences were above a certain threshold were determined to contain a face. A bounding box for each of these positive cells was saved, along with their confidence, and image ID for evaluation. The evaluation then determines the average precision of the face detector based on ground truth values in the test set.</p>
+<center><img src="AP_Neg10000.png"/><img src="VJ.png"/></center>
+
+
+<h3>Mining Hard Negatives</h3>
+
+<p>In addition to the randomly sampled negative training examples, an attempt at mining for hard negatives was also made. Before running the classifier on the test images, it was run on the set of non-face scenes to find areas that it believed contains faces. The results of this are rigged to contain only false positives, so this additional negative examples were then used to retrain the classifier before finally running the classifier against the actual test set of images. Unfortunately, mining for hard negatives did not show a significant improvement in average precision with the default parameters. Specifically, with a large number of randomly sampled negative examples, the addition of hard negatives showed only negligible improvement. However, with a more limited set of randomly sampled negative examples (less than 5000), there was significant improvement. Particularly, in the complete absence of the randomly sampled negative examples, the use hard negatives was more or less able to compensate.</p>
+<center><img src="NumNegExamples_Plot.png"/><img src="NumNegExamples+HN_Plot.png"/></center>
+<center><img src="HNDifference_Plot.png"/></center>
+
+
+<h3>Parameter Tuning</h3>
+
+<p>All the figures listed above were assumed to be using the default given parameters, with the exception of the threshold parameter when running the classifier because it was not a given value. A threshold of -0.1 was used because it was found to be optimal over a range of values.</p>
+<center><img src="Threshold_Plot.png"/></center>
+
+<p>Threshold aside, there were four other parameters to test (HOG cell size, number of randomly sampled negative examples, whether or not hard negatives were used, and &lambda;), so each one was tested independently with a threshold of -0.1 and default values where applicable.</p>
+
+<p>HOG cell size was the most significant parameter in affecting average precision. Smaller cell sizes were strictly better, but drastically increased memory usage and runtime. Cell sizes of 1 and 2 were attempted, but my system did not have enough memory to complete the pipeline.</p>
+<center><img src="CellSize_Plot.png"/></center>
+
+<p>The results for varying the number of randomly sampled negatives examples and the use of hard negatives were displayed above in the section on mining hard negatives, but it appears that more negative examples performed strictly better, though not by much beyond 10,000.</p>
+
+<p>In using <code>vl_svmtrain</code>, there is a regularization parameter &lambda; that can be adjusted. &lambda; did not appear to have a significant impact on the average precision unless it was greater than 0.01, but smaller values seemed to perform better.</p>
+<center><img src="Lambda_Plot.png"/></center>
+
+
+<h3>Results of combining the best values for each parameter</h3>
+
+<p>HOG Cell size = 3, 15000 randomly sampled negative examples, hard negatives, &lambda; = 0.0000001, threshold = -0.1</p>
+
+<center>
+<img src="AP_Best.png">
+<img src="HT_Best.png">
+<img src="ES_Best.png">
+<img src="VJ_Best.png">
+</center>
+<center><img src="detections_class57.jpg.png"></center>
+
+
+</body>
+</html>

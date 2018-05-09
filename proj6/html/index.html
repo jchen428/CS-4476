@@ -1,0 +1,279 @@
+<html>
+<head>
+<title>Deep Learning Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 1160px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+table td img {
+  text-align: center;
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Jesse Chen</h1>
+</div>
+</div>
+<div class="container">
+
+
+<h2>Project 6 / Deep Learning</h2>
+
+
+<p>The goal of this project was to provide an introduction to deep learning tools for computer vision, particularly the application of neural networks in scene recognition. The project was split into two parts:</p>
+
+<ol>
+<li>Training a deep network from scratch</li>
+<li>Fine-tuning a pre-trained deep network</li>
+</ol>
+
+
+<h3>Part 1: Training a Deep Network from Scratch</h3>
+
+<p>This first part was divided into four subproblems:</p>
+<ol>
+<li>Adding jittering</li>
+<li>Zero-centering images</li>
+<li>Regularizing the neural network</li>
+<li>Making the network deeper</li>
+</ol>
+
+<p>Baseline - 30 epochs</p>
+<center><img src="Plots_Baseline.png"/><img src="Filters_Baseline.png"/></center>
+<p>Lowest validation error is 0.774667</p>
+
+
+<h4>Adding Jittering</h4>
+<p>Since we don't have enough training data to begin with, "jittering" is an effective way to artificially boost the amount of training data we have by transforming existing training data in some way that still results in having the same training label. In this case, all I did to jitter our data was to randomly mirror the training images. Because the training and test errors now fall more slowly, more training epochs were used to see a 13.8% improvement in accuracy</p>
+
+<p>Results with jittering - 50 epochs</p>
+<center><img src="Plots_Jittering.png"/><img src="Filters_Jittering.png"/></center>
+<p>Lowest validation error is 0.636667</p>
+
+
+<h4>Zero-Centering Images</h4>
+<p>Zero-centering is a matter of computing the mean image from the entire database and subtracting it from every image in the database during setup. This is a simple trick that increased my accuracy by 16.5%.</p>
+
+<p>Results with jittering and zero-centering - 50 epochs</p>
+<center><img src="Plots_Zero-Centering.png"/><img src="Filters_Zero-Centering.png"/></center>
+<p>Lowest validation error is 0.471333</p>
+
+
+<h4>Regularizing the Neural Network</h4>
+<p>Training the network without dropout regularization can lead to overfitting of the learned weights to the training data. It can recognize the training data perfectly, but it will not be able to generalize the learned weights to the test data. By adding a dropout layer to the network and running on 30 more epochs, I was able to improve my accuracy by another 3.1%.</p>
+
+<p>Results with jittering, zero-centering, and regularization - 80 epochs</p>
+<center><img src="Plots_Regularization.png"/><img src="Filters_Regularization.png"/></center>
+<p>Lowest validation error is 0.440667</p>
+
+
+<h4>Making the Network Deeper</h4>
+<p>Considering the fact that this neural network only has two layers with learned weights, it isn't necessarily "deep" yet. So, two additional layers (one convolutional layer and one max-pool layer) were added after the existing ReLU layer. Additionally, the first preceding max-pool layer and the last convolutional layer were adjusted to maintain a data size of 1 in the last convolutional layer. Unfortunately, I was not able to tune this deeper network such that it performed better than the original network.</p>
+<code>
+f=1/100; <br>
+<br>
+net.layers = {} ;<br>
+<br>
+net.layers{end+1} = struct('type', 'conv', ...<br>
+&nbsp;&nbsp;&nbsp;'weights', {{f*randn(9,9,1,10, 'single'), zeros(1, 10, 'single')}}, ...<br>
+&nbsp;&nbsp;&nbsp;'stride', 1, ...<br>
+&nbsp;&nbsp;&nbsp;'pad', 0, ...<br>
+&nbsp;&nbsp;&nbsp;'name', 'conv1') ;<br>
+<br>
+net.layers{end+1} = struct('type', 'pool', ...<br>
+&nbsp;&nbsp;&nbsp;'method', 'max', ...<br>
+&nbsp;&nbsp;&nbsp;'pool', [5 5], ...<br>
+&nbsp;&nbsp;&nbsp;'stride', 3, ...<br>
+&nbsp;&nbsp;&nbsp;'pad', 0) ;<br>
+<br>
+net.layers{end+1} = struct('type', 'relu') ;<br>
+<br>
+% Add more layers
+net.layers{end+1} = struct('type', 'conv', ...<br>
+&nbsp;&nbsp;&nbsp;'weights', {{f*randn(5,5,1,10, 'single'), zeros(1, 10, 'single')}}, ...<br>
+&nbsp;&nbsp;&nbsp;'stride', 1, ...<br>
+&nbsp;&nbsp;&nbsp;'pad', 0, ...<br>
+&nbsp;&nbsp;&nbsp;'name', 'conv1') ;<br>
+<br>
+net.layers{end+1} = struct('type', 'pool', ...<br>
+&nbsp;&nbsp;&nbsp;'method', 'max', ...<br>
+&nbsp;&nbsp;&nbsp;'pool', [3 3], ...<br>
+&nbsp;&nbsp;&nbsp;'stride', 2, ...<br>
+&nbsp;&nbsp;&nbsp;'pad', 0) ;<br>
+<br>
+% Regularize network with dropout layer<br>
+net.layers{end+1} = struct('type', 'dropout', 'rate', 0.5);<br>
+<br>
+net.layers{end+1} = struct('type', 'conv', ...<br>
+&nbsp;&nbsp;&nbsp;'weights', {{f*randn(8,8,10,15, 'single'), zeros(1, 15, 'single')}}, ...<br>
+&nbsp;&nbsp;&nbsp;'stride', 1, ...<br>
+&nbsp;&nbsp;&nbsp;'pad', 1, ...<br>
+&nbsp;&nbsp;&nbsp;'name', 'fc1') ;<br>
+<br>
+% Loss layer<br>
+net.layers{end+1} = struct('type', 'softmaxloss') ;<br>
+</code>
+
+<p>Results with jittering, zero-centering, regularization, and extra layers - 100 epochs</p>
+<center><img src="Plots_Deeper.png"/><img src="Filters_Deeper.png"/></center>
+<p>Lowest validation error is 0.474667</p>
+
+
+<h3>Part 2: Fine-Tuning a Pre-Trained Deep Network</h3>
+
+<p>The second part of this project involved fine-tuning the existing VGG-F network to perform scene recognition. In order to make the VGG-F network work with our dataset and pipeline, a number of modifications were made, but most of the code from Part 1 was reused. First, the final two layers, fc8 and softmax, were changed to match output the data depth of our database. Second, dropout layers were added between fc6 and fc7 and between fc7 and fc8. Third, the grayscale images in our database had to be converted to RGB (simply by concatenating the gray values 3 times) because the VGG-F network only accepts 3-channel images.</p>
+<code>
+f=1/100;<br>
+<br>
+% Move fc7 and relu7 to make room for dropout layers<br>
+net.layers{end - 1} = net.layers{end - 2};<br>
+net.layers{end - 2} = net.layers{end - 3};<br>
+<br>
+% Add dropout layer between fc6 and fc7<br>
+net.layers{end - 3} = struct('type', 'dropout', 'rate', 0.5);<br>
+<br>
+% Add dropout layer between fc7 and fc8<br>
+net.layers{end} = struct('type', 'dropout', 'rate', 0.5);<br>
+<br>
+% Append new fc8 to the end<br>
+net.layers{end + 1} = struct('type', 'conv', ...<br>
+&nbsp;&nbsp;&nbsp;'weights', {{f * randn(3, 3, 4096, 15, 'single'), zeros(1, 15, 'single')}}, ...<br>
+&nbsp;&nbsp;&nbsp;'stride', 1, ...<br>
+&nbsp;&nbsp;&nbsp;'pad', 1, ...<br>
+&nbsp;&nbsp;&nbsp;'name', 'fc8') ;<br>
+<br>
+% Append new softmax to the end<br>
+net.layers{end + 1} = struct('type', 'softmaxloss');<br>
+</code>
+
+<p>Results - 10 epochs</p>
+<center><img src="Plots_Part2.png"/><img src="Filters_Part2.png"/></center>
+<p>Lowest validation error is 0.128667</p>
+
+</body>
+</html>
